@@ -21,10 +21,10 @@
     --color-hairline: #e6dfd8;
     --color-hairline-soft: #ebe6df;
     --color-ink: #141413;
-    --color-body-strong: #252523;
-    --color-body: #3d3d3a;
-    --color-muted: #6c6a64;
-    --color-muted-soft: #8e8b82;
+    --color-body-strong: #1a1917;
+    --color-body: #2a2927;
+    --color-muted: #4a4842;
+    --color-muted-soft: #5c5a54;
     --color-success: #5db872;
     --color-warning: #d4a017;
     --color-error: #c64545;
@@ -46,7 +46,8 @@
     background: var(--color-canvas);
     font-family: var(--font-body);
     color: var(--color-body);
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 500;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -68,7 +69,7 @@
   .topbar .logo {
     font-family: var(--font-display);
     font-size: 22px;
-    font-weight: 400;
+    font-weight: 600;
     color: var(--color-ink);
     letter-spacing: -0.02em;
   }
@@ -97,8 +98,8 @@
   }
   .tab-btn {
     padding: 16px 22px;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
     border: none;
     background: none;
@@ -200,14 +201,14 @@
   }
   .stat-card:hover .drill-hint { opacity: 0.7; }
   .stat-card .stat-label {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--color-muted);
-    font-weight: 500;
+    font-weight: 600;
   }
   .stat-card .stat-value {
     font-family: var(--font-display);
     font-size: 34px;
-    font-weight: 400;
+    font-weight: 700;
     color: var(--color-ink);
     line-height: 1.1;
     letter-spacing: -0.02em;
@@ -215,8 +216,8 @@
   }
   .stat-card .stat-sub {
     font-size: 12px;
-    color: var(--color-muted-soft);
-    font-weight: 400;
+    color: var(--color-muted);
+    font-weight: 500;
     margin-top: 3px;
   }
 
@@ -238,7 +239,7 @@
   .section-card h3 {
     font-family: var(--font-display);
     font-size: 22px;
-    font-weight: 400;
+    font-weight: 600;
     color: var(--color-ink);
     margin-bottom: 22px;
     letter-spacing: -0.01em;
@@ -251,7 +252,7 @@
     display: flex;
     gap: 24px;
     margin-top: 18px;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--color-muted);
     font-weight: 500;
     justify-content: center;
@@ -284,15 +285,15 @@
     align-items: center;
   }
   .filter-bar label {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--color-muted);
   }
   .filter-bar select, .filter-bar input {
-    padding: 7px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--color-hairline);
     border-radius: var(--radius-sm);
-    font-size: 13px;
+    font-size: 14px;
     font-family: var(--font-body);
     color: var(--color-body);
     background: var(--color-canvas);
@@ -338,12 +339,12 @@
     border: 1px solid var(--color-hairline);
     overflow: hidden;
   }
-  .table-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .table-wrap th {
     background: var(--color-surface-card);
     color: var(--color-muted);
-    font-weight: 500;
-    font-size: 12px;
+    font-weight: 600;
+    font-size: 13px;
     padding: 12px 16px;
     text-align: left;
     border-bottom: 1px solid var(--color-hairline);
@@ -369,8 +370,8 @@
     display: inline-block;
     padding: 3px 10px;
     border-radius: 9999px;
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 600;
   }
   .tag-done    { background: #e6f4ea; color: var(--color-success); }
   .tag-active  { background: #fef3e0; color: var(--color-amber); }
@@ -397,7 +398,7 @@
   .progress-fill.mid  { background: var(--color-amber); }
   .progress-fill.low  { background: var(--color-error); }
   .progress-pct {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--color-muted);
     min-width: 36px;
@@ -418,15 +419,15 @@
     align-items: center;
   }
   .pivot-controls label {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--color-muted);
   }
   .pivot-controls select {
-    padding: 7px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--color-hairline);
     border-radius: var(--radius-sm);
-    font-size: 13px;
+    font-size: 14px;
     font-family: var(--font-body);
     color: var(--color-body);
     outline: none;
@@ -443,12 +444,12 @@
     border: 1px solid var(--color-hairline);
     overflow: auto;
   }
-  .pivot-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .pivot-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .pivot-wrap th {
     background: var(--color-surface-card);
     color: var(--color-muted);
-    font-weight: 500;
-    font-size: 12px;
+    font-weight: 600;
+    font-size: 13px;
     padding: 12px 16px;
     border-bottom: 1px solid var(--color-hairline);
     border-right: 1px solid var(--color-hairline-soft);
@@ -487,12 +488,12 @@
   .clickable:hover { background: var(--color-primary-soft) !important; color: var(--color-primary) !important; }
 
   /* ========== SUMMARY TABLE ========== */
-  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .summary-table th {
     background: var(--color-surface-card);
     color: var(--color-muted);
-    font-weight: 500;
-    font-size: 12px;
+    font-weight: 600;
+    font-size: 13px;
     padding: 12px 16px;
     text-align: left;
     border-bottom: 1px solid var(--color-hairline);
