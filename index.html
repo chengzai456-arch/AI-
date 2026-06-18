@@ -506,12 +506,17 @@
   .summary-table tbody tr:hover td { background: var(--color-primary-soft); }
   .summary-table tr:last-child td { border-bottom: none; }
   .summary-table .total-row-summary td {
-    background: var(--color-primary-soft);
-    font-weight: 600;
-    color: var(--color-primary);
+    background: rgba(204,120,92,0.1);
+    font-weight: 700;
+    color: var(--color-ink);
     cursor: default;
+    border-top: 2px solid var(--color-primary);
   }
-  .summary-table .total-row-summary:hover td { background: var(--color-primary-soft); }
+  .summary-table .total-row-summary td:first-child {
+    color: var(--color-primary);
+    font-size: 15px;
+  }
+  .summary-table .total-row-summary:hover td { background: rgba(204,120,92,0.15); }
 
   /* ========== LINK ========== */
   a.ext-link {
@@ -814,6 +819,10 @@ function renderOverview() {
         }
       },
       plugins: {
+        datalabels: {
+          display: true,
+          font: { family: "'SimHei','黑体','Microsoft YaHei',sans-serif" }
+        },
         tooltip: {
           backgroundColor: '#181715',
           titleFont: { size: 13, weight: '500', family: "'SimHei','黑体','Microsoft YaHei',sans-serif" },
