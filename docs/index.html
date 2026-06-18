@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 项目进展看板</title>
+<meta name="description" content="AI项目进展数据分析与穿透看板">
+<!-- 字体统一为黑体 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root {
+    --color-primary: #cc785c;
+    --color-primary-hover: #b5644a;
+    --color-primary-soft: #f3e4dd;
+    --color-canvas: #faf9f5;
+    --color-surface-soft: #f5f0e8;
+    --color-surface-card: #efe9de;
+    --color-surface-cream-strong: #e8e0d2;
+    --color-surface-dark: #181715;
+    --color-hairline: #e6dfd8;
+    --color-hairline-soft: #ebe6df;
+    --color-ink: #080806;
+    --color-body-strong: #0d0d0b;
+    --color-body: #171613;
+    --color-muted: #33312b;
+    --color-muted-soft: #423f38;
+    --color-success: #5db872;
+    --color-warning: #d4a017;
+    --color-error: #c64545;
+    --color-teal: #5db8a6;
+    --color-amber: #e8a55a;
+
+    --font-display: "SimHei", "黑体", "Microsoft YaHei", sans-serif;
+    --font-body: "SimHei", "黑体", "Microsoft YaHei", sans-serif;
+    --font-code: "SimHei", "黑体", "Microsoft YaHei", monospace;
+
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--color-canvas);
+    font-family: var(--font-body);
+    color: var(--color-body);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ========== TOPBAR ========== */
+  .topbar {
+    background: var(--color-canvas);
+    border-bottom: 1px solid var(--color-hairline);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar .logo {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+  }
+  .topbar .logo span { color: var(--color-primary); font-weight: 700; }
+  .topbar .pill {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 9999px;
+  }
+  .topbar .spacer { flex: 1; }
+  .topbar .meta {
+    font-size: 13px;
+    color: var(--color-muted-soft);
+  }
+
+  /* ========== TAB NAV ========== */
+  .tab-nav {
+    background: var(--color-canvas);
+    border-bottom: 1px solid var(--color-hairline-soft);
+    padding: 0 32px;
+    display: flex;
+    gap: 2px;
+  }
+  .tab-btn {
+    padding: 16px 22px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--color-muted);
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    font-family: var(--font-body);
+  }
+  .tab-btn.active { color: var(--color-ink); border-bottom-color: var(--color-primary); }
+  .tab-btn:hover { color: var(--color-body); }
+
+  /* ========== DRILL BREADCRUMB ========== */
+  .drill-bar {
+    background: var(--color-surface-soft);
+    border-bottom: 1px solid var(--color-hairline);
+    padding: 0 32px;
+    height: 42px;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+  .drill-bar.visible { display: flex; }
+  .drill-bar .chip {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .drill-bar .chip .close {
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    opacity: 0.7;
+  }
+  .drill-bar .chip .close:hover { opacity: 1; }
+  .drill-bar .clear-all {
+    cursor: pointer;
+    color: var(--color-primary);
+    font-weight: 500;
+    margin-left: 8px;
+    font-size: 11px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .drill-bar .label { font-weight: 500; color: var(--color-muted-soft); }
+
+  /* ========== CONTAINER ========== */
+  .container { max-width: 1280px; margin: 0 auto; padding: 36px 32px 64px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== STAT CARDS ========== */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--color-surface-card);
+    border-radius: var(--radius-lg);
+    padding: 18px 18px 16px;
+    border: 1px solid transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 12px rgba(204,120,92,0.1);
+    transform: translateY(-1px);
+  }
+  .stat-card:active { transform: scale(0.985); }
+  .stat-card .drill-hint {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 10px;
+    color: var(--color-muted-soft);
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-weight: 500;
+  }
+  .stat-card:hover .drill-hint { opacity: 0.7; }
+  .stat-card .stat-label {
+    font-size: 13px;
+    color: var(--color-muted);
+    font-weight: 700;
+  }
+  .stat-card .stat-value {
+    font-family: var(--font-display);
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--color-ink);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-feature-settings: 'tnum' 1;
+  }
+  .stat-card .stat-sub {
+    font-size: 13px;
+    color: var(--color-muted);
+    font-weight: 600;
+    margin-top: 3px;
+  }
+
+  /* Color borders top */
+  .stat-card.done  { border-top: 3px solid var(--color-success); }
+  .stat-card.active-card { border-top: 3px solid var(--color-amber); }
+  .stat-card.blocked { border-top: 3px solid var(--color-error); }
+  .stat-card.live  { border-top: 3px solid var(--color-teal); }
+  .stat-card.skill { border-top: 3px solid var(--color-primary); }
+
+  /* ========== SECTION CARDS ========== */
+  .section-card {
+    background: var(--color-surface-soft);
+    border-radius: var(--radius-lg);
+    padding: 28px 28px 24px;
+    border: 1px solid var(--color-hairline);
+    margin-bottom: 16px;
+  }
+  .section-card h3 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: 22px;
+    letter-spacing: -0.01em;
+    padding-left: 12px;
+    border-left: 4px solid var(--color-primary);
+  }
+  .section-card canvas { max-height: 320px; }
+
+  .chart-labels {
+    display: flex;
+    gap: 24px;
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--color-muted);
+    font-weight: 600;
+    justify-content: center;
+  }
+  .chart-labels .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 7px;
+    vertical-align: middle;
+  }
+  .chart-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--color-muted-soft);
+    margin-top: 8px;
+  }
+
+  /* ========== FILTER BAR ========== */
+  .filter-bar {
+    background: var(--color-surface-soft);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    border: 1px solid var(--color-hairline);
+    margin-bottom: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .filter-bar label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-muted);
+  }
+  .filter-bar select, .filter-bar input {
+    padding: 8px 12px;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: var(--font-body);
+    color: var(--color-body);
+    background: var(--color-canvas);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .filter-bar select:focus, .filter-bar input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-soft);
+  }
+  .btn {
+    padding: 7px 18px;
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:hover { background: var(--color-primary-hover); }
+  .btn:active { transform: scale(0.97); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--color-hairline);
+    color: var(--color-body);
+  }
+  .btn-ghost:hover { background: var(--color-surface-card); color: var(--color-ink); }
+
+  .result-count {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--color-muted-soft);
+    font-weight: 600;
+  }
+
+  /* ========== TABLE ========== */
+  .table-wrap {
+    background: var(--color-surface-soft);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-hairline);
+    overflow: hidden;
+  }
+  .table-wrap table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .table-wrap th {
+    background: var(--color-surface-card);
+    color: var(--color-muted);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-hairline);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  .table-wrap th:hover { color: var(--color-primary); background: var(--color-primary-soft); }
+  .table-wrap th .sort-arrow { font-size: 10px; margin-left: 4px; opacity: 0.4; }
+  .table-wrap td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-hairline-soft);
+    vertical-align: middle;
+    font-feature-settings: 'tnum' 1;
+  }
+  .table-wrap tr:last-child td { border-bottom: none; }
+  .table-wrap tbody tr { transition: background 0.12s; }
+  .table-wrap tbody tr:hover td { background: var(--color-surface-card); }
+
+  /* ========== TAGS ========== */
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .tag-done    { background: #e6f4ea; color: var(--color-success); }
+  .tag-active  { background: #fef3e0; color: var(--color-amber); }
+  .tag-pending { background: #f0eeea; color: var(--color-muted); }
+  .tag-block   { background: #fdecea; color: var(--color-error); }
+  .tag-skill   { background: var(--color-primary-soft); color: var(--color-primary); }
+
+  /* ========== PROGRESS ========== */
+  .progress-cell { display: flex; align-items: center; gap: 10px; }
+  .progress-track {
+    width: 80px;
+    height: 6px;
+    background: #e8e0d2;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--color-primary);
+    transition: width 0.5s ease;
+  }
+  .progress-fill.high { background: var(--color-success); }
+  .progress-fill.mid  { background: var(--color-amber); }
+  .progress-fill.low  { background: var(--color-error); }
+  .progress-pct {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-muted);
+    min-width: 36px;
+    text-align: right;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* ========== PIVOT ========== */
+  .pivot-controls {
+    background: var(--color-surface-soft);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    border: 1px solid var(--color-hairline);
+    margin-bottom: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+  .pivot-controls label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-muted);
+  }
+  .pivot-controls select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: var(--font-body);
+    color: var(--color-body);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .pivot-controls select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-soft);
+  }
+
+  .pivot-wrap {
+    background: var(--color-surface-soft);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-hairline);
+    overflow: auto;
+  }
+  .pivot-wrap table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .pivot-wrap th {
+    background: var(--color-surface-card);
+    color: var(--color-muted);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-hairline);
+    border-right: 1px solid var(--color-hairline-soft);
+    text-align: center;
+  }
+  .pivot-wrap td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--color-hairline-soft);
+    border-right: 1px solid var(--color-hairline-soft);
+    text-align: center;
+    font-feature-settings: 'tnum' 1;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    font-weight: 600;
+  }
+  .pivot-wrap td:hover { background: var(--color-primary-soft); color: var(--color-primary); }
+  .pivot-wrap td.row-header {
+    text-align: left;
+    font-weight: 600;
+    background: var(--color-surface-card);
+    cursor: pointer;
+  }
+  .pivot-wrap td.row-header:hover { background: var(--color-primary-soft); color: var(--color-primary); }
+  .pivot-wrap .total-row td {
+    background: var(--color-primary-soft);
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+  .pivot-wrap .total-col {
+    background: var(--color-surface-card);
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+  .cell-num { font-feature-settings: 'tnum' 1; }
+  .clickable { cursor: pointer; transition: background 0.12s, color 0.12s; }
+  .clickable:hover { background: var(--color-primary-soft) !important; color: var(--color-primary) !important; }
+
+  /* ========== SUMMARY TABLE ========== */
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .summary-table th {
+    background: var(--color-surface-card);
+    color: var(--color-muted);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .summary-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-hairline-soft);
+    font-feature-settings: 'tnum' 1;
+  }
+  .summary-table tbody tr { transition: background 0.12s; cursor: pointer; }
+  .summary-table tbody tr:hover td { background: var(--color-primary-soft); }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table .total-row-summary td {
+    background: rgba(204,120,92,0.1);
+    font-weight: 700;
+    color: var(--color-ink);
+    cursor: default;
+    border-top: 2px solid var(--color-primary);
+  }
+  .summary-table .total-row-summary td:first-child {
+    color: var(--color-primary);
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .summary-table .total-row-summary:hover td { background: rgba(204,120,92,0.15); }
+
+  /* ========== LINK ========== */
+  a.ext-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  a.ext-link:hover { text-decoration: underline; }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 1100px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px) {
+    .container { padding: 20px 16px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .topbar, .tab-nav, .drill-bar { padding: 0 16px; }
+    .section-card { padding: 20px 16px; }
+    .section-card h3 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">AI 项目<span>进展看板</span></div>
+  <div class="pill">数据洞察</div>
+  <div class="spacer"></div>
+  <div class="meta">数据更新：2026-06-18</div>
+</div>
+
+<div class="drill-bar" id="drill-bar">
+  <span class="label">当前筛选：</span>
+  <span id="drill-chips"></span>
+  <span class="clear-all" onclick="clearDrill()" id="drill-clear">清除全部</span>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('overview', this)">总览</button>
+  <button class="tab-btn" onclick="switchTab('table', this)">项目列表</button>
+  <button class="tab-btn" onclick="switchTab('pivot', this)">透视分析</button>
+</div>
+
+<div class="container">
+
+  <!-- ===== 总览 ===== -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <div class="section-card">
+      <h3>各小组多维对比</h3>
+      <div style="height:320px; position:relative">
+        <canvas id="chartCombined"></canvas>
+      </div>
+      <div class="chart-labels">
+        <span><span class="dot" style="background:var(--color-primary)"></span> 项目数量</span>
+        <span><span class="dot" style="background:var(--color-amber)"></span> 卡点数量</span>
+        <span><span class="dot" style="background:var(--color-teal)"></span> 平均进度</span>
+      </div>
+      <div class="chart-hint">点击折线图上的数据点可穿透查看该小组详情</div>
+    </div>
+
+    <div class="section-card">
+      <h3>各小指标汇总</h3>
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>所属小组</th><th>项目数</th><th>已完成</th><th>进行中</th><th>待启动</th>
+            <th>平均进度</th><th>卡点数</th><th>卡点率</th><th>已形成SKILL</th>
+          </tr>
+        </thead>
+        <tbody id="summary-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 项目列表 ===== -->
+  <div class="tab-panel" id="tab-table">
+    <div class="filter-bar">
+      <label>所属小组</label>
+      <select id="f-group" onchange="renderTable()"><option value="">全部</option></select>
+      <label>状态</label>
+      <select id="f-status" onchange="renderTable()"><option value="">全部</option></select>
+      <label>卡点</label>
+      <select id="f-block" onchange="renderTable()">
+        <option value="">全部</option><option value="是">有卡点</option><option value="否">无卡点</option>
+      </select>
+      <label>搜索</label>
+      <input type="text" id="f-search" placeholder="输入项目名称或负责人..." oninput="renderTable()" style="min-width:160px">
+      <button class="btn btn-ghost" onclick="resetFilters()">重置</button>
+      <span class="result-count" id="table-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('id')"># <span class="sort-arrow"></span></th>
+            <th onclick="sortBy('name')">项目名称</th>
+            <th onclick="sortBy('owner')">负责人</th>
+            <th onclick="sortBy('group')">所属小组</th>
+            <th onclick="sortBy('status')">状态</th>
+            <th onclick="sortBy('pct')">完成进度</th>
+            <th onclick="sortBy('block')">卡点</th>
+            <th onclick="sortBy('deadline')">截止日期</th>
+            <th>成果</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 透视分析 ===== -->
+  <div class="tab-panel" id="tab-pivot">
+    <div class="pivot-controls">
+      <label>行维度</label>
+      <select id="p-row" onchange="renderPivot()">
+        <option value="group">所属小组</option><option value="status">状态</option><option value="block">卡点</option>
+      </select>
+      <label>列维度</label>
+      <select id="p-col" onchange="renderPivot()">
+        <option value="status">状态</option><option value="group">所属小组</option><option value="block">卡点</option>
+      </select>
+      <label>指标值</label>
+      <select id="p-val" onchange="renderPivot()">
+        <option value="count">项目数量</option><option value="avgPct">平均进度%</option>
+      </select>
+    </div>
+    <div class="pivot-wrap" id="pivot-table"></div>
+    <div class="chart-hint" style="margin-top:8px">点击任意单元格可穿透查看对应项目明细</div>
+  </div>
+
+</div>
+
+<script>
+/* ========== 数据 ========== */
+const RAW = [
+  { id:1,  name:"AI考勤数据看板",                owner:"Cheng Zhang, Huan Ma, Zhehui An",          group:"系统组",   status:"进行中",   pct:90,  block:"否", deadline:"2026-06-19", online:false, link:"https://personnel-platform-orpin.vercel.app", skill:true  },
+  { id:2,  name:"AI补贴计算",                    owner:"Liping Xu",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-22", online:true,  link:"",   skill:true  },
+  { id:3,  name:"AI系统视频培训",                owner:"Ann Ma, Mchester Zhang, Ilyth An, Beverly Lin", group:"系统组", status:"进行中", pct:30, block:"是", deadline:"2026-06-30", online:false, link:"", skill:false },
+  { id:5,  name:"AI 1099司机工时计算",           owner:"Suxian Yu",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-15", online:true,  link:"",   skill:true  },
+  { id:6,  name:"AI意大利PDF转Excel提取",        owner:"Suxian Yu",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-15", online:true,  link:"",   skill:true  },
+  { id:7,  name:"AI GUS考勤看板",               owner:"Stella Zhu",                              group:"报账组",  status:"进行中",   pct:90,  block:"否", deadline:"2026-06-19", online:false, link:"https://a4073c6d60bf4842b324f7adbdbe7b7b.app.codebuddy.work", skill:false },
+  { id:8,  name:"AI服务台机器人拦截分析",        owner:"Owen Yuan, Zoe Tian",                  group:"支持组",  status:"进行中",   pct:70,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:9,  name:"飞书Aily服务台集成",           owner:"Owen Yuan, Zoe Tian",                group:"支持组",  status:"进行中",   pct:60,  block:"是", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:10, name:"AI OA组织架构到EHR系统匹配",    owner:"Owen Yuan, Zhiqing Guo",               group:"支持组",  status:"进行中",   pct:60,  block:"是", deadline:"2026-06-30", online:false, link:"", skill:false },
+  { id:11, name:"AI人工成本标签效率",            owner:"Owen Yuan, Ziwei Wang",                   group:"支持组",  status:"进行中",   pct:70,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:12, name:"AI绩效看板UI优化",             owner:"Owen Yuan, Zoe Tian",                 group:"支持组",  status:"进行中",   pct:0,   block:"是", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:13, name:"AI招聘达成率统计",              owner:"Owen Yuan, Clara Li",                    group:"支持组",  status:"进行中",   pct:0,   block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:14, name:"AI供应商门户月报",              owner:"Ann Ma, Mchester Zhang, Ilyth An",        group:"系统组",   status:"进行中",   pct:50,  block:"否", deadline:"2026-06-30", online:false, link:"", skill:false },
+  { id:15, name:"AI自动更新考勤设备状态",        owner:"Ann Ma",                               group:"系统组",   status:"待启动",  pct:0,   block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:16, name:"Aily自动回复群组任务调研",      owner:"Ann Ma",                                  group:"系统组",   status:"进行中",   pct:10,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:17, name:"AI自动生成培训PPT",            owner:"Mchester Zhang, Ilyth An",                 group:"系统组",   status:"进行中",   pct:10,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:18, name:"AI SOP自动生成FAQ",            owner:"Beverly Lin",                              group:"系统组",   status:"进行中",   pct:80,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:19, name:"AI GUS新排班季度看板",         owner:"Ilyth An, Mchester Zhang",                 group:"系统组",   status:"进行中",   pct:10,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:true  },
+  { id:20, name:"AI需求看板展示",                owner:"Ilyth An, Beverly Lin, Mchester Zhang",    group:"系统组",   status:"进行中",   pct:20,  block:"否", deadline:"2026-06-30", online:false, link:"", skill:false },
+  { id:21, name:"AI需求状态机器人推送",          owner:"Ilyth An, Beverly Lin, Ann Ma, Mchester Zhang", group:"系统组", status:"进行中", pct:10, block:"否", deadline:"2026-06-30", online:false, link:"", skill:false },
+  { id:22, name:"AI荷兰PDF养老金数据提取",       owner:"Yuxia Lai",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-06-30", online:true,  link:"",   skill:false },
+  { id:23, name:"AI 1099司机月度薪酬看板",     owner:"Anni Liu",                              group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-06-10", online:true,  link:"",   skill:true  },
+];
+
+const GROUPS = ['系统组', '薪酬组', '报账组', '支持组'];
+
+function avg(arr, key) {
+  if (!arr.length) return 0;
+  return Math.round(arr.reduce((s,x) => s + (x[key]||0), 0) / arr.length);
+}
+
+/* ========== 穿透下钻状态 ========== */
+let drillFilters = {};
+
+function applyDrill(filters) {
+  drillFilters = { ...drillFilters, ...filters };
+  updateDrillUI();
+  switchTab('table');
+  syncFiltersFromDrill();
+}
+
+function clearDrill() {
+  drillFilters = {};
+  updateDrillUI();
+  resetFilters();
+}
+
+function updateDrillUI() {
+  const bar = document.getElementById('drill-bar');
+  const chips = document.getElementById('drill-chips');
+  const clearBtn = document.getElementById('drill-clear');
+  const keys = Object.keys(drillFilters).filter(k => drillFilters[k]);
+
+  if (keys.length === 0) {
+    bar.classList.remove('visible');
+    return;
+  }
+  bar.classList.add('visible');
+
+  const labels = { group: '所属小组', status: '状态', block: '卡点' };
+  chips.innerHTML = keys.map(k => {
+    const label = labels[k] || k;
+    return `<span class="chip">${label}：${drillFilters[k]}
+      <span class="close" onclick="removeDrillFilter('${k}')">&times;</span>
+    </span>`;
+  }).join('');
+  clearBtn.style.display = keys.length > 0 ? 'inline' : 'none';
+}
+
+function removeDrillFilter(key) {
+  delete drillFilters[key];
+  updateDrillUI();
+  syncFiltersFromDrill();
+  if (Object.keys(drillFilters).length === 0) resetFilters();
+}
+
+function syncFiltersFromDrill() {
+  if (drillFilters.group)  document.getElementById('f-group').value = drillFilters.group;
+  if (drillFilters.status) document.getElementById('f-status').value = drillFilters.status;
+  if (drillFilters.block)  document.getElementById('f-block').value = drillFilters.block;
+  renderTable();
+}
+
+/* ========== 总览 ========== */
+function renderOverview() {
+  const total = RAW.length;
+  const done = RAW.filter(x => x.status === '已完成').length;
+  const active = RAW.filter(x => x.status === '进行中').length;
+  const blocked = RAW.filter(x => x.block === '是').length;
+  const skillCnt = RAW.filter(x => x.skill).length;
+  const avgPct = avg(RAW, 'pct');
+
+  /* 统计卡片 */
+  const stats = [
+    { label:'项目总数',   value:total,  sub:'全部AI项目',       cls:'',         drill:{} },
+    { label:'已完成',     value:done,   sub:`完成率 ${Math.round(done/total*100)}%`, cls:'done', drill:{status:'已完成'} },
+    { label:'进行中',     value:active, sub:`平均进度 ${avgPct}%`,  cls:'active-card', drill:{status:'进行中'} },
+    { label:'有卡点',     value:blocked,sub:`占比 ${Math.round(blocked/total*100)}%`, cls:'blocked', drill:{block:'是'} },
+    { label:'已形成SKILL', value:skillCnt,sub:`可复用率 ${Math.round(skillCnt/total*100)}%`, cls:'skill', drill:{skill:'yes'} },
+  ];
+
+  document.getElementById('stat-grid').innerHTML = stats.map((c, i) => {
+    let drillJS = '';
+    if (Object.keys(c.drill).length > 0) {
+      drillJS = `onclick="applyDrill(${JSON.stringify(c.drill).replace(/"/g, '&quot;')})"`;
+    }
+    return `<div class="stat-card ${c.cls}" ${drillJS} style="animation: fadeUp 0.5s ease backwards; animation-delay:${i*0.06}s">
+      <div class="drill-hint">点击筛选 &rarr;</div>
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value">${c.value}</div>
+      <div class="stat-sub">${c.sub}</div>
+    </div>`;
+  }).join('');
+
+  /* ===== 综合折线图 ===== */
+  Chart.register(ChartDataLabels);
+  Chart.defaults.font.family = "'SimHei','黑体','Microsoft YaHei',sans-serif";
+
+  const gCounts = GROUPS.map(g => RAW.filter(x=>x.group===g).length);
+  const gBlocks = GROUPS.map(g => RAW.filter(x=>x.group===g && x.block==='是').length);
+  const gAvg    = GROUPS.map(g => avg(RAW.filter(x=>x.group===g), 'pct'));
+
+  new Chart(document.getElementById('chartCombined'), {
+    type: 'line',
+    data: {
+      labels: GROUPS,
+      datasets: [
+        {
+          label: '项目数量', data: gCounts,
+          borderColor: '#cc785c', backgroundColor: 'rgba(204,120,92,0.06)',
+          borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 9,
+          pointBackgroundColor: '#cc785c', pointBorderColor: '#faf9f5', pointBorderWidth: 2,
+          tension: 0.25, fill: true, yAxisID: 'y',
+          datalabels: { anchor: 'end', align: 'top', offset: 6, color: '#cc785c', font: { weight: '600', size: 12 }, formatter: v => v }
+        },
+        {
+          label: '卡点数量', data: gBlocks,
+          borderColor: '#e8a55a', backgroundColor: 'rgba(232,165,90,0.06)',
+          borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 9,
+          pointBackgroundColor: '#e8a55a', pointBorderColor: '#faf9f5', pointBorderWidth: 2,
+          tension: 0.25, fill: true, yAxisID: 'y',
+          datalabels: { anchor: 'end', align: 'top', offset: 6, color: '#e8a55a', font: { weight: '600', size: 12 }, formatter: v => v }
+        },
+        {
+          label: '平均进度%', data: gAvg,
+          borderColor: '#5db8a6', backgroundColor: 'rgba(93,184,166,0.05)',
+          borderWidth: 2.5, borderDash: [6,1], pointRadius: 5, pointHoverRadius: 9,
+          pointBackgroundColor: '#5db8a6', pointBorderColor: '#faf9f5', pointBorderWidth: 2,
+          tension: 0.25, fill: true, yAxisID: 'y1',
+          datalabels: { anchor: 'end', align: 'top', offset: 6, color: '#5db8a6', font: { weight: '600', size: 12 }, formatter: v => v + '%' }
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      onClick: (e, elements, chart) => {
+        if (elements.length > 0) {
+          const idx = elements[0].index;
+          const group = GROUPS[idx];
+          applyDrill({ group });
+        }
+      },
+      plugins: {
+        datalabels: {
+          display: true,
+          font: { family: "'SimHei','黑体','Microsoft YaHei',sans-serif" }
+        },
+        tooltip: {
+          backgroundColor: '#181715',
+          titleFont: { size: 13, weight: '500', family: "'SimHei','黑体','Microsoft YaHei',sans-serif" },
+          bodyFont: { size: 12, family: "'SimHei','黑体','Microsoft YaHei',sans-serif" },
+          padding: 14, cornerRadius: 8,
+          callbacks: {
+            label: ctx => ctx.datasetIndex === 2
+              ? ctx.dataset.label + '：' + ctx.parsed.y + '%'
+              : ctx.dataset.label + '：' + ctx.parsed.y
+          }
+        },
+        legend: {
+          position: 'top',
+          labels: { usePointStyle: true, pointStyleWidth: 10, padding: 20, font: { size: 13, family: "'SimHei','黑体','Microsoft YaHei',sans-serif" } }
+        }
+      },
+      scales: {
+        y: {
+          type: 'linear', position: 'left',
+          title: { display: true, text: '数量（个）', font: { weight: '500', size: 11, family: "'SimHei','黑体','Microsoft YaHei',sans-serif" }, color: '#8e8b82' },
+          beginAtZero: true, grace: '15%',
+          ticks: { stepSize: 2, font: { size: 11 }, color: '#8e8b82' },
+          grid: { color: '#ebe6df' }
+        },
+        y1: {
+          type: 'linear', position: 'right',
+          title: { display: true, text: '进度（%）', font: { weight: '500', size: 11, family: "'SimHei','黑体','Microsoft YaHei',sans-serif" }, color: '#8e8b82' },
+          beginAtZero: true, max: 105,
+          ticks: { stepSize: 20, callback: v => v > 100 ? '' : (v + '%'), font: { size: 11 }, color: '#8e8b82' },
+          grid: { drawOnChartArea: false }
+        },
+        x: {
+          ticks: { font: { size: 12, weight: '500' }, color: '#3d3d3a' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  /* ===== 汇总表 ===== */
+  const tbody = document.getElementById('summary-body');
+  tbody.innerHTML = GROUPS.map(g => {
+    const items = RAW.filter(x=>x.group===g);
+    const cnt = items.length;
+    const dc = items.filter(x=>x.status==='已完成').length;
+    const ac = items.filter(x=>x.status==='进行中').length;
+    const pc = items.filter(x=>x.status==='待启动').length;
+    const ap = avg(items,'pct');
+    const bc = items.filter(x=>x.block==='是').length;
+    const sk = items.filter(x=>x.skill).length;
+    return `<tr onclick="applyDrill({group:'${g}'})" title="点击穿透查看${g}详情">
+      <td style="font-weight:500;color:var(--color-ink)">${g}</td>
+      <td class="cell-num" style="font-weight:600;color:var(--color-primary)">${cnt}</td>
+      <td class="cell-num"><span class="tag tag-done">${dc}</span></td>
+      <td class="cell-num"><span class="tag tag-active">${ac}</span></td>
+      <td class="cell-num">${pc||'—'}</td>
+      <td class="cell-num" style="font-weight:600">${ap}%</td>
+      <td class="cell-num" style="color:${bc>0?'var(--color-error)':'var(--color-muted-soft)'};font-weight:600">${bc}</td>
+      <td class="cell-num">${cnt>0?Math.round(bc/cnt*100):0}%</td>
+      <td class="cell-num">${sk||'—'}</td>
+    </tr>`;
+  }).join('') + `<tr class="total-row-summary">
+    <td>合计</td><td>${total}</td><td>${done}</td><td>${active}</td>
+    <td>${RAW.filter(x=>x.status==='待启动').length}</td><td>${avgPct}%</td>
+    <td>${blocked}</td><td>${Math.round(blocked/total*100)}%</td><td>${skillCnt}</td>
+  </tr>`;
+}
+
+/* ========== 项目列表 ========== */
+let sortKey = 'id', sortDir = 1;
+function sortBy(k) {
+  if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = 1; }
+  renderTable();
+}
+
+function initFilters() {
+  const gSel = document.getElementById('f-group');
+  GROUPS.forEach(g => { const o = document.createElement('option'); o.value=g; o.textContent=g; gSel.appendChild(o); });
+  ['已完成','进行中','待启动'].forEach(s => {
+    const o = document.createElement('option'); o.value=s; o.textContent=s;
+    document.getElementById('f-status').appendChild(o);
+  });
+}
+
+function renderTable() {
+  const fGroup = document.getElementById('f-group').value;
+  const fStatus = document.getElementById('f-status').value;
+  const fBlock = document.getElementById('f-block').value;
+  const fSearch = document.getElementById('f-search').value.toLowerCase();
+
+  let data = RAW.filter(x => {
+    if (fGroup && x.group !== fGroup) return false;
+    if (fStatus && x.status !== fStatus) return false;
+    if (fBlock && x.block !== fBlock) return false;
+    if (fSearch && !x.name.toLowerCase().includes(fSearch) && !x.owner.toLowerCase().includes(fSearch)) return false;
+    return true;
+  });
+  data.sort((a,b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
+    return (va - vb) * sortDir;
+  });
+  document.getElementById('table-count').textContent = '共 ' + data.length + ' 项';
+
+  function pctClass(v) { if (v>=80) return 'high'; if (v>=30) return 'mid'; return 'low'; }
+  const statusMap = { '已完成':'tag-done', '进行中':'tag-active', '待启动':'tag-pending' };
+
+  document.getElementById('table-body').innerHTML = data.map(x => `
+    <tr>
+      <td style="color:var(--color-muted-soft);font-size:13px;width:40px">${x.id}</td>
+      <td style="font-weight:600;max-width:220px">
+        ${x.name}
+        ${x.link ? `<br><a class="ext-link" href="${x.link}" target="_blank">查看成果 &rarr;</a>` : ''}
+      </td>
+      <td style="color:var(--color-muted);font-size:13px;max-width:150px">${x.owner}</td>
+      <td style="font-weight:600;cursor:pointer" onclick="applyDrill({group:'${x.group}'})" title="穿透查看${x.group}">${x.group} <span style="font-size:11px;color:var(--color-muted-soft)">&rarr;</span></td>
+      <td><span class="tag ${statusMap[x.status]||''}">${x.status}</span></td>
+      <td>
+        <div class="progress-cell">
+          <div class="progress-track"><div class="progress-fill ${pctClass(x.pct)}" style="width:${Math.max(x.pct,2)}%"></div></div>
+          <span class="progress-pct">${x.pct}%</span>
+        </div>
+      </td>
+      <td><span class="tag ${x.block==='是'?'tag-block':'tag-done'}">${x.block==='是'?'有卡点':'无卡点'}</span></td>
+      <td style="font-size:13px;color:var(--color-muted)">${x.deadline}</td>
+      <td>
+        ${x.skill?'<span class="tag tag-skill">SKILL</span>':''}
+        ${!x.skill?'<span style="color:var(--color-muted-soft);font-size:13px">—</span>':''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function resetFilters() {
+  document.getElementById('f-group').value = '';
+  document.getElementById('f-status').value = '';
+  document.getElementById('f-block').value = '';
+  document.getElementById('f-search').value = '';
+  drillFilters = {};
+  updateDrillUI();
+  renderTable();
+}
+
+/* ========== 透视分析 ========== */
+function renderPivot() {
+  const rowKey = document.getElementById('p-row').value;
+  const colKey = document.getElementById('p-col').value;
+  const valKey = document.getElementById('p-val').value;
+  const keyLabel = { group:'所属小组', status:'状态', block:'卡点' };
+  const rowVals = [...new Set(RAW.map(x=>x[rowKey]))].sort();
+  const colVals = [...new Set(RAW.map(x=>x[colKey]))].sort();
+
+  const matrix = {};
+  rowVals.forEach(r => { matrix[r] = {}; colVals.forEach(c => {
+    const items = RAW.filter(x => x[rowKey]===r && x[colKey]===c);
+    matrix[r][c] = valKey==='count' ? items.length : avg(items,'pct');
+  })});
+
+  const colTotals = {};
+  colVals.forEach(c => {
+    const items = RAW.filter(x=>x[colKey]===c);
+    colTotals[c] = valKey==='count'?items.length:avg(items,'pct');
+  });
+  const grandTotal = valKey==='count' ? RAW.length : avg(RAW,'pct');
+
+  let html = `<table><thead><tr><th>${keyLabel[rowKey]} / ${keyLabel[colKey]}</th>${colVals.map(c=>`<th>${c}</th>`).join('')}<th class="total-col">合计</th></tr></thead><tbody>`;
+
+  rowVals.forEach(r => {
+    const rowTotal = (()=>{ const items=RAW.filter(x=>x[rowKey]===r); return valKey==='count'?items.length:avg(items,'pct'); })();
+    html += `<tr><td class="row-header" onclick="applyDrill({${rowKey}:'${r}'})" title="穿透查看全部${r}">${r} &rarr;</td>`;
+    html += colVals.map(c => {
+      const v = matrix[r][c];
+      const suffix = valKey==='avgPct' && v ? '%' : '';
+      const disp = (v || v===0) ? v : '—';
+      const drill = { [rowKey]: r };
+      if (v) drill[colKey] = c;
+      return `<td class="cell-num" onclick="applyDrill(${JSON.stringify(drill).replace(/"/g,'&quot;')})" title="穿透：${r} + ${c}">${disp}${suffix}</td>`;
+    }).join('');
+    html += `<td class="cell-num total-col">${rowTotal}${valKey==='avgPct'?'%':''}</td></tr>`;
+  });
+
+  html += `<tr class="total-row"><td class="row-header">合计</td>${colVals.map(c=>`<td class="cell-num">${colTotals[c]}${valKey==='avgPct'?'%':''}</td>`).join('')}<td class="cell-num">${grandTotal}${valKey==='avgPct'?'%':''}</td></tr></tbody></table>`;
+  document.getElementById('pivot-table').innerHTML = html;
+}
+
+/* ========== 标签页切换 ========== */
+function switchTab(name, btnEl) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btnEl) btnEl.classList.add('active');
+}
+
+/* ========== 初始化 ========== */
+document.addEventListener('DOMContentLoaded', () => {
+  renderOverview();
+  initFilters();
+  renderTable();
+  renderPivot();
+});
+</script>
+</body>
+</html>
