@@ -378,6 +378,7 @@
   .tag-pending { background: #f0eeea; color: var(--color-muted); }
   .tag-block   { background: #fdecea; color: var(--color-error); }
   .tag-skill   { background: var(--color-primary-soft); color: var(--color-primary); }
+  .tag-closed  { background: #f0eeea; color: #888; }
 
   /* ========== PROGRESS ========== */
   .progress-cell { display: flex; align-items: center; gap: 10px; }
@@ -546,7 +547,7 @@
   <div class="logo">AI 项目<span>进展看板</span></div>
   <div class="pill">数据洞察</div>
   <div class="spacer"></div>
-  <div class="meta">数据更新：2026-06-25</div>
+  <div class="meta">数据更新：2026-07-02</div>
 </div>
 
 <div class="drill-bar" id="drill-bar">
@@ -655,29 +656,30 @@
 <script>
 /* ========== 数据 ========== */
 const RAW = [
-  { id:1,  name:"AI考勤数据晾晒",                owner:"Cheng Zhang, Huan Ma, Zhehui An",          group:"系统组",   status:"已完成",     pct:100, block:"否", deadline:"2026-06-19", online:true,  link:"https://personnel-platform-orpin.vercel.app", skill:true  },
-  { id:2,  name:"AI核算补贴类",                  owner:"Liping Xu",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-22", online:true,  link:"",   skill:true  },
-  { id:3,  name:"AI进行系统视频培训",            owner:"Ann Ma, Mchester Zhang, Ilyth An, Beverly Lin", group:"系统组", status:"进行中", pct:30, block:"是", deadline:"2026-06-30", online:false, link:"", skill:false },
-  { id:5,  name:"AI核算1099司机工时",           owner:"Suxian Yu",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-15", online:true,  link:"",   skill:true  },
-  { id:6,  name:"AI提取意大利PDF工资单为EXCEL表", owner:"Suxian Yu",                              group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-15", online:true,  link:"",   skill:true  },
-  { id:7,  name:"AI进行GUS考勤数据晾晒",        owner:"Stella Zhu",                              group:"报账组",  status:"进行中",   pct:90,  block:"否", deadline:"2026-06-19", online:false, link:"https://a4073c6d60bf4842b324f7adbdbe7b7b.app.codebuddy.work", skill:false },
-  { id:8,  name:"AI进行人事服务台机器人拦截情况分析", owner:"Owen Yuan, Zoe Tian",                group:"支持组",  status:"进行中",   pct:70,  block:"否", deadline:"2026-06-30", online:true,  link:"",   skill:false },
-  { id:9,  name:"研究飞书aily嵌入人事服务台降低人工回复", owner:"Owen Yuan, Zoe Tian",           group:"支持组",  status:"进行中",   pct:60,  block:"是", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:10, name:"AI进行OA系统组织架构表匹配ehr系统表单", owner:"Owen Yuan, Zhiqing Guo",          group:"支持组",  status:"进行中",   pct:60,  block:"是", deadline:"2026-06-30", online:false, link:"", skill:false },
-  { id:11, name:"AI进行人力成本打标提效",        owner:"Owen Yuan, Ziwei Wang",                   group:"支持组",  status:"进行中",   pct:70,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:12, name:"AI进行绩效晾晒展现效果优化",    owner:"Owen Yuan, Zoe Tian",                     group:"支持组",  status:"进行中",   pct:0,   block:"是", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:13, name:"AI进行招聘达成率数据统计提效",  owner:"Owen Yuan, Clara Li",                    group:"支持组",  status:"进行中",   pct:0,   block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:14, name:"AI进行薪资流水数据提取、信息核对", owner:"Owen Yuan, Zhiqing Guo, Zoe Tian",     group:"支持组",  status:"进行中",   pct:70,  block:"是", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:15, name:"AI进行供应商门户区域月度汇总报告", owner:"Ann Ma, Mchester Zhang, Ilyth An",     group:"系统组",   status:"进行中",   pct:50,  block:"否", deadline:"2026-06-30", online:false, link:"", skill:false },
-  { id:16, name:"AI进行自动更新考勤机状态",      owner:"Ann Ma",                                  group:"系统组",   status:"待启动",  pct:0,   block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:17, name:"研究aily自动回复群任务",        owner:"Ann Ma",                                  group:"系统组",   status:"进行中",   pct:10,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:18, name:"AI进行自动生成培训ppt",         owner:"Mchester Zhang, Ilyth An",                 group:"系统组",   status:"进行中",   pct:10,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:19, name:"AI根据投喂SOP自动生成对应FAQ",   owner:"Beverly Lin",                              group:"系统组",   status:"进行中",   pct:80,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
-  { id:20, name:"AI进行GUS新班次使用情况季度晾晒", owner:"Ilyth An, Mchester Zhang",               group:"系统组",   status:"进行中",   pct:70,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:true  },
-  { id:21, name:"AI进行需求仪表盘展示",          owner:"Ilyth An, Beverly Lin, Mchester Zhang",    group:"系统组",   status:"进行中",   pct:20,  block:"否", deadline:"2026-06-30", online:false, link:"", skill:false },
-  { id:22, name:"AI进行需求状态、内容机器人推送", owner:"Ilyth An, Beverly Lin, Ann Ma, Mchester Zhang", group:"系统组", status:"进行中", pct:10, block:"否", deadline:"2026-06-30", online:false, link:"", skill:false },
-  { id:23, name:"AI提取荷兰PDF账单养老金数据",   owner:"Yuxia Lai",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-06-30", online:true,  link:"",   skill:false },
-  { id:24, name:"AI生成1099司机月度薪酬看板",   owner:"Anni Liu",                              group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-06-10", online:true,  link:"",   skill:true  },
+  { id:1,  name:"AIGUS正式工考勤数据晾晒",                owner:"Cheng Zhang, Huan Ma, Zhehui An",          group:"系统组",   status:"已完成",     pct:100, block:"否", deadline:"2026-06-19", online:true,  link:"https://personnel-platform-orpin.vercel.app", skill:true  },
+  { id:2,  name:"AI核算补贴类",                          owner:"Liping Xu",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-22", online:true,  link:"",   skill:true  },
+  { id:3,  name:"AI进行系统视频培训",                    owner:"Ann Ma, Mchester Zhang, Ilyth An, Beverly Lin", group:"系统组", status:"进行中", pct:80,  block:"是", deadline:"2026-06-30", online:false, link:"", skill:true  },
+  { id:5,  name:"AI核算1099司机工时",                   owner:"Suxian Yu",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-15", online:true,  link:"",   skill:true  },
+  { id:6,  name:"AI提取意大利PDF工资单为EXCEL表",        owner:"Suxian Yu",                              group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-05-15", online:true,  link:"",   skill:true  },
+  { id:7,  name:"AI进行GUS考勤数据晾晒",                owner:"Stella Zhu",                              group:"报账组",  status:"进行中",   pct:90,  block:"否", deadline:"2026-06-19", online:false, link:"https://a4073c6d60bf4842b324f7adbdbe7b7b.app.codebuddy.work", skill:false },
+  { id:8,  name:"AI进行人事服务台机器人拦截情况分析",     owner:"Owen Yuan, Zoe Tian",                     group:"支持组",  status:"进行中",   pct:70,  block:"否", deadline:"2026-06-30", online:true,  link:"",   skill:false },
+  { id:9,  name:"AI进行OA系统组织架构表匹配ehr系统表单，导入提效", owner:"Owen Yuan, Zhiqing Guo",          group:"支持组",  status:"已关闭",   pct:0,   block:"是", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:10, name:"AI进行人力成本打标提效",                owner:"Owen Yuan, Ziwei Wang",                   group:"支持组",  status:"进行中",   pct:70,  block:"否", deadline:"2026-07-31", online:false, link:"",   skill:false },
+  { id:11, name:"AI进行绩效晾晒展现效果优化",            owner:"Owen Yuan, Zoe Tian",                     group:"支持组",  status:"进行中",   pct:70,  block:"是", deadline:"2026-07-31", online:false, link:"",   skill:false },
+  { id:12, name:"AI进行招聘达成率数据统计提效",          owner:"Owen Yuan, Clara Li",                     group:"支持组",  status:"已关闭",   pct:0,   block:"是", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:13, name:"AI进行薪资流水数据提取、信息核对",      owner:"Owen Yuan, Zhiqing Guo, Zoe Tian",         group:"支持组",  status:"进行中",   pct:70,  block:"是", deadline:"2026-07-31", online:false, link:"",   skill:false },
+  { id:14, name:"AI进行美区各大区劳务报账晾晒",          owner:"Ziwei Wang",                              group:"支持组",  status:"进行中",   pct:90,  block:"否", deadline:"2026-07-31", online:false, link:"",   skill:false },
+  { id:15, name:"AI进行招聘积分晾晒",                   owner:"Ziwei Wang, Clara Li",                    group:"支持组",  status:"待启动",   pct:0,   block:"否", deadline:"2026-07-31", online:false, link:"",   skill:false },
+  { id:16, name:"AI进行供应商门户区域月度汇总报告",      owner:"Ann Ma, Mchester Zhang, Ilyth An",         group:"系统组",   status:"进行中",   pct:50,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:17, name:"AI进行自动更新考勤机状态",             owner:"Ann Ma",                                  group:"系统组",   status:"待启动",  pct:0,   block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:18, name:"研究aily自动回复群任务",               owner:"Ann Ma",                                  group:"系统组",   status:"进行中",   pct:10,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:19, name:"AI进行自动生成培训ppt",                owner:"Mchester Zhang, Ilyth An",                 group:"系统组",   status:"已完成",     pct:100, block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:20, name:"AI根据投喂SOP、问题自动生成对应FAQ",   owner:"Beverly Lin",                              group:"系统组",   status:"进行中",   pct:80,  block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:21, name:"AI进行GUS新班次使用情况季度晾晒",      owner:"Ilyth An, Mchester Zhang",                 group:"系统组",   status:"进行中",   pct:80,  block:"否", deadline:"2026-07-15", online:false, link:"",   skill:true  },
+  { id:22, name:"AI进行需求仪表盘展示",                 owner:"Ilyth An, Beverly Lin, Mchester Zhang",    group:"系统组",   status:"待启动",   pct:0,   block:"否", deadline:"2026-06-30", online:false, link:"",   skill:false },
+  { id:23, name:"AI进行需求状态、内容机器人推送",        owner:"Ilyth An, Beverly Lin, Ann Ma, Mchester Zhang", group:"系统组", status:"待启动", pct:0, block:"否", deadline:"2026-06-30", online:false, link:"", skill:false },
+  { id:24, name:"AI提取荷兰PDF账单养老金数据",           owner:"Yuxia Lai",                               group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-06-30", online:true,  link:"",   skill:false },
+  { id:25, name:"AI生成1099司机月度薪酬看板",           owner:"Anni Liu",                              group:"薪酬组",  status:"已完成",     pct:100, block:"否", deadline:"2026-06-10", online:true,  link:"",   skill:true  },
 ];
 
 const GROUPS = ['系统组', '薪酬组', '报账组', '支持组'];
@@ -902,7 +904,7 @@ function sortBy(k) {
 function initFilters() {
   const gSel = document.getElementById('f-group');
   GROUPS.forEach(g => { const o = document.createElement('option'); o.value=g; o.textContent=g; gSel.appendChild(o); });
-  ['已完成','进行中','待启动'].forEach(s => {
+  ['已完成','进行中','待启动','已关闭'].forEach(s => {
     const o = document.createElement('option'); o.value=s; o.textContent=s;
     document.getElementById('f-status').appendChild(o);
   });
@@ -929,7 +931,7 @@ function renderTable() {
   document.getElementById('table-count').textContent = '共 ' + data.length + ' 项';
 
   function pctClass(v) { if (v>=80) return 'high'; if (v>=30) return 'mid'; return 'low'; }
-  const statusMap = { '已完成':'tag-done', '进行中':'tag-active', '待启动':'tag-pending' };
+  const statusMap = { '已完成':'tag-done', '进行中':'tag-active', '待启动':'tag-pending', '已关闭':'tag-closed' };
 
   document.getElementById('table-body').innerHTML = data.map(x => `
     <tr>
